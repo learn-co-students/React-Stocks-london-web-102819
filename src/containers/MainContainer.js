@@ -73,7 +73,7 @@ class MainContainer extends Component {
                 <div className="row">
                     <div className="col-8">
                         <StockContainer 
-                            stocks = {sortedStocksToRender().filter(s => !s.inPortfolio)} 
+                            stocks = {sortedStocksToRender()} 
                             tradeStock = {this.tradeStock }
                         />
                     </div>
