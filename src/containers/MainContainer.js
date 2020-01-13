@@ -7,7 +7,7 @@ class MainContainer extends Component {
   state = {
     portfolio: [],
     filter: "Tech", 
-    sortBy: "Alphabetically"
+    sortBy: undefined
   }
 
   addOrRemoveStockFromPortfolio = stock => {
@@ -27,7 +27,7 @@ class MainContainer extends Component {
   }
 
   sortStocks = option => {
-    this.setState({sortBy: option.target.value})
+      this.setState({sortBy: option.target.value})
   }
 
 
@@ -37,7 +37,7 @@ class MainContainer extends Component {
     const filteredStocks = SortedStocks.filter(stock => stock.type === this.state.filter)  
     return (
       <div>
-        <SearchBar sortStocks={this.sortStocks} changeFilter={this.handleFilterChange}/>
+        <SearchBar sort={this.state.sortBy} sortStocks={this.sortStocks} changeFilter={this.handleFilterChange}/>
 
           <div className="row">
             <div className="col-8">
