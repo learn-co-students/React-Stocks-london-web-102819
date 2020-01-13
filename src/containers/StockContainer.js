@@ -4,16 +4,18 @@ import Stock from '../components/Stock'
 class StockContainer extends Component {
 
   render() {
+    const {stocks, addOrRemoveStock} = this.props
     return (
-      <div>
+      <div >
         <h2>Stocks</h2>
         {
-          //render the list of stocks here
+          stocks.map(stock => (
+            <Stock {...stock} addOrRemoveStock={addOrRemoveStock} />
+          ))
         }
       </div>
     );
   }
 
 }
-
 export default StockContainer;
