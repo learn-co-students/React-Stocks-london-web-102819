@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {useState, useEffect} from 'react';
 import StockContainer from './StockContainer'
 import PortfolioContainer from './PortfolioContainer'
 import SearchBar from '../components/SearchBar'
@@ -6,87 +6,57 @@ import SearchBar from '../components/SearchBar'
 const StocksURL = "http://localhost:3000/stocks";
 
 
-class MainContainer extends Component {
+function MainContainer() {
 
+    const [stockSort, setStockSort] = useState("Alphabetically");
+    const [stockTypeFilter, setStockTypeFilter] = useState("All");
+    const [stocks, setStocks] = useState([]);
 
-    state = {
-        stockSort: "Alphabetically",
-        stockTypeFilter: "All",
-        stocks: []
-    }      
-
-
-    fetchStocks = () => {
+    useEffect(() => {
         fetch(StocksURL)
             .then(data => data.json())
             .then(stocks => stocks.map(s => ({...s, inPortfolio: false})))
-            .then(stocks => this.setState({stocks}))
-    }
+            .then(returnedStocks => setStocks(returnedStocks) )
+    }, [])
 
-    componentDidMount() {
-        this.fetchStocks();
-    }
-
-    tradeStock = stock => {
-        this.setState({
-            stocks: this.state.stocks.map(s => {
+    function tradeStock(stock) {
+        setStocks(stocks.map(s => {
                 if (s.id === stock.id) s.inPortfolio = !s.inPortfolio;
                 return s;
-            })
-        })
+        }))
     }
 
+    const stocksToRender = stocks.filter(s => s.type === stockTypeFilter || stockTypeFilter === "All");
 
-    changeFilter = stockTypeFilter => {
-        this.setState({
-           stockTypeFilter
-      })
-    }
-
-
-    changeStockSort = stockSort => {
-        this.setState({
-            stockSort
-        })
-    }
+    const sortedStocksToRender = (stockSort === "Alphabetically") ?  
+        stocksToRender.sort((a,b) => (a.ticker).localeCompare(b.ticker))
+        : stocksToRender.sort((a, b) => a.price - b.price);
 
 
-    render() {
+    return (
+        <div>
+            <SearchBar 
+                stockSort = {stockSort} 
+                changeStockSort = {newSort => setStockSort(newSort)} 
+                changeFilter = {newFilter => setStockTypeFilter(newFilter)}
+            />
 
-        const stocksToRender = this.state.stocks.filter(s =>
-            s.type === this.state.stockTypeFilter ||
-            this.state.stockTypeFilter === "All");
-
-        const sortedStocksToRender = () => {
-            if (this.state.stockSort === "Alphabetically") {
-                return stocksToRender.sort((a,b)=> (a.ticker).localeCompare(b.ticker));
-            } else {
-                return stocksToRender.sort((a, b) => a.price - b.price);
-            }
-        }
-
-
-        return (
-            <div>
-                <SearchBar stockSort = {this.state.stockSort} changeStockSort = {this.changeStockSort} changeFilter = {this.changeFilter}/>
-
-                <div className="row">
-                    <div className="col-8">
-                        <StockContainer 
-                            stocks = {sortedStocksToRender()} 
-                            tradeStock = {this.tradeStock }
-                        />
-                    </div>
-                    <div className="col-4">
-                        <PortfolioContainer 
-                            stocks = {sortedStocksToRender().filter(s => s.inPortfolio)} 
-                            tradeStock = {this.tradeStock}
-                        />
-                    </div>
+            <div className="row">
+                <div className="col-8">
+                    <StockContainer 
+                        stocks = {sortedStocksToRender} 
+                        tradeStock = {tradeStock}
+                    />
+                </div>
+                <div className="col-4">
+                    <PortfolioContainer 
+                        stocks = {sortedStocksToRender.filter(s => s.inPortfolio)} 
+                        tradeStock = {tradeStock}
+                    />
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 
 }
 
